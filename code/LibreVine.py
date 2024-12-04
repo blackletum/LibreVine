@@ -29,13 +29,19 @@ class WebsiteOpener:
             return False  # Stops the listener
 
     def load_intervals(self):
-        """Loads delay intervals from randominterval.txt."""
+        """Loads delay intervals from randominterval.txt (in seconds)."""
         try:
             with open(os.path.join('input', 'randominterval.txt'), 'r') as file:
                 lines = file.readlines()
-                self.intervals = [int(line.strip()) / 1000 for line in lines[:10]]  # Convert ms to seconds
+                self.intervals = [int(line.strip()) for line in lines[:10]]  # Read as full seconds
+            if not self.intervals:
+                print("No valid intervals found in randominterval.txt. Defaulting to 5-10 seconds delays.")
+                self.intervals = [5, 10]  # Default intervals
         except FileNotFoundError:
             print("randominterval.txt not found. Defaulting to 5-10 seconds delays.")
+            self.intervals = [5, 10]  # Default intervals
+        except ValueError:
+            print("Error reading intervals from randominterval.txt. Defaulting to 5-10 seconds delays.")
             self.intervals = [5, 10]  # Default intervals
 
     def open_chrome_browser(self):
@@ -55,6 +61,10 @@ class WebsiteOpener:
 
     def open_websites_from_file(self):
         """Reads websites from a file and opens them with specified delays."""
+        if not self.selected_browser:
+            print("Error: No browser selected.")
+            return
+
         try:
             with open(os.path.join('input', 'websites.txt'), 'r') as file:
                 websites = [line.strip().replace("\n", "") for line in file]
@@ -62,13 +72,14 @@ class WebsiteOpener:
             for website in websites:
                 while self.is_paused:
                     time.sleep(1)  # Wait while paused
-
+                
                 print(f"Opening: {website}")
                 try:
                     self.selected_browser.open(f"https://{website}")
                     
-                    # Delay between opening websites
+                    # Delay between opening websites: randomly chosen from the loaded intervals
                     delay = random.choice(self.intervals) if self.intervals else random.randint(5, 10)
+                    print(f"Waiting for {delay} seconds before opening next website...")
                     time.sleep(delay)
                 except Exception as e:
                     print(f"Error opening {website}: {str(e)}")
@@ -114,7 +125,7 @@ class WebsiteOpener:
         print("Press SPACE to pause/resume. Press ESC to exit.")
         
         try:
-            opener.load_intervals()
+            opener.load_intervals()  # Load the intervals before opening websites
             opener.open_chrome_browser()
             opener.start_key_listener()
             opener.open_websites_from_file()
@@ -129,7 +140,7 @@ def keep_window_open():
     while True:
         key = input().lower()
         if key == 'r':
-            os.system('python ' + sys.argv[0])
+            opener.main()  # Restart the main method without launching a new process
             break
         elif key == 'c':
             sys.exit(0)
