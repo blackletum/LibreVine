@@ -2,6 +2,8 @@
 
 ![Logo](https://github.com/blackletum/LibreVine/blob/main/images/template-removebg-preview.png?raw=true)
 
+[![Donate](https://cdn.prod.website-files.com/5c14e387dab576fe667689cf/670f5a02fcf48af59c591185_support_me_on_kofi_dark-p-500.png)](https://ko-fi.com/saintsoftware/donate)
+
 Welcome to **LibreVine**, a horrific Python program designed to open multiple user-defined websites at random or static intervals. 
 
 Within this repository, you’ll find three folders:
